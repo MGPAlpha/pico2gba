@@ -28,7 +28,7 @@ LDLIBS   := -lm -ljson-c
 
 all: $(CLI)
 
-$(CORE): $(CORE_O) $(LIB) | $(BIN_DIR)
+$(CORE): $(CORE_O) $(LIB) $(LIBLUA_A) | $(BIN_DIR)
 		$(AR) -rc $@ $?
 
 $(CLI): $(CLI_O) $(CORE) $(RES) $(LIB) | $(BIN_DIR)
@@ -42,6 +42,8 @@ $(BIN_DIR) $(OBJ_DIR) $(RES_DIR) $(BIN_RES_DIR):
 		
 clean:
 		@$(RM) -rv $(BIN_DIR) $(OBJ_DIR) $(LIBLUA_A)
+
+deep-clean: clean
 		@cd $(LIB_DIR)/luaARM && make clean
 
 $(LIBLUA_A) : | $(RES_DIR)
