@@ -1,0 +1,5 @@
+*.o
+*.a
+bin/
+obj/
+res/liblua.a

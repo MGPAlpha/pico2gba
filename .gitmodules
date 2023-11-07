@@ -1,0 +1,6 @@
+[submodule "lib/luaARM"]
+	path = lib/luaARM
+	url = git@github.com:MGPAlpha/luaARM.git
+[submodule "lib/cfgpath"]
+	path = lib/cfgpath
+	url = git@github.com:Malvineous/cfgpath.git
