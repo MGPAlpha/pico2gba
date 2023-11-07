@@ -7,4 +7,6 @@ json_object* openOrCreateJsonFile(const char* path);
 
 char* getConfigPath();
 
+char* getConversionFolderPath(const char* path);
+
 #endif
