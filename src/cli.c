@@ -4,7 +4,7 @@
 
 int main() {
     setPico8LocationGlobal("/home/pico-8/pico8");
-    char* path1 = "/home/mitchell/.lexaloffle/pico-8/carts/demos/api.p8";
+    char* path1 = "/home/mitchell/.lexaloffle/pico-8/carts/demos/drippy.p8";
     printf("Checking if file %s is a cartridge\n", path1);
     printf("Result: %d\n", isPico8Cart(path1));
     char* path2 = "/home/mitchell/.lexaloffle/pico-8/carts/demos/drippy.p812312";
@@ -14,4 +14,5 @@ int main() {
     printf("Checking if file %s is a cartridge\n", path3);
     printf("Result: %d\n", isPico8Cart(path3));
     createConversionFolder(path1);
+    cartSectionToFile(path1, "lua");
 }

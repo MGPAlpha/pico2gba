@@ -7,4 +7,6 @@ void createConversionFolder(char* cartPath);
 
 int isPico8Cart(char* cartPath);
 
+int cartSectionToFile(char* path, char* section);
+
 #endif

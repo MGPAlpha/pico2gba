@@ -68,6 +68,62 @@ void createConversionFolder(char* cartPath) {
         printf("Cannot create conversion folder for invalid cartridge at %s\n", cartPath);
     }
     char* dirPath = getConversionFolderPath(cartPath);
-    printf("Dir path: %s\n", dirPath);
+    // printf("Dir path: %s\n", dirPath);
     int result = mkdir(dirPath, 0700);
+}
+
+int cartSectionToFile(char* path, char* section) {
+    FILE* cart = fopen(path, "r");
+    char line[256];
+    char sectionHeader[16] = "__";
+    strcat(sectionHeader, section);
+    strcat(sectionHeader, "__\n");
+    int sectionFound = 0;
+    while(fgets(line, 255, cart)) {
+        if (!strcmp(line, sectionHeader)) {
+            sectionFound = 1;
+            break;
+        }
+    }
+    if (!sectionFound) {
+        fclose(cart);
+        printf("Failed to find section %s in cartridge %s\n", section, path);
+        return 1;
+    }
+    
+    char* dirPath = getConversionFolderPath(path);
+    // printf("dir path: %s\n", dirPath);
+    char* sectionPath = malloc(strlen(dirPath) + 10);
+    strcpy(sectionPath, dirPath);
+    strcat(sectionPath, section);
+    strcat(sectionPath, ".txt");
+    printf("output file %s\n", sectionPath);
+    FILE* sectionFile = fopen(sectionPath, "w");
+    
+    while (fgets(line, 255, cart)) {
+        int isHeader = isSectionHeader(line);
+        if (isHeader) {
+            break;
+        }
+        fputs(line, sectionFile);
+    }
+    fclose(sectionFile);
+    fclose(cart);
+    return 0;
+}
+
+int isSectionHeader(const char* line) {
+    int i;
+    for (i = 0; i < 2; i++) {
+        if (line[i] != '_') return 0;
+    }
+    while (line[i] && line[i] != '_') {
+        i++;
+    }
+    if (!line[i]) return 0;
+    for (int j = 0; j < 2; j++) {
+        if (line[i+j] != '_') return 0;
+    }
+    return 1;
+
 }
