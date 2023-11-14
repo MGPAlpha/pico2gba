@@ -72,11 +72,13 @@ void createConversionFolder(char* cartPath) {
     int result = mkdir(dirPath, 0700);
 }
 
-int cartSectionToFile(char* path, char* section) {
+int processCartSection(const char* path, const FILE* output, const char* name, int (*process)(const FILE* output, const char* line)) {
     FILE* cart = fopen(path, "r");
     char line[256];
+    
+    // Find Section Header
     char sectionHeader[16] = "__";
-    strcat(sectionHeader, section);
+    strcat(sectionHeader, name);
     strcat(sectionHeader, "__\n");
     int sectionFound = 0;
     while(fgets(line, 255, cart)) {
@@ -87,29 +89,47 @@ int cartSectionToFile(char* path, char* section) {
     }
     if (!sectionFound) {
         fclose(cart);
-        printf("Failed to find section %s in cartridge %s\n", section, path);
+        printf("Failed to find section %s in cartridge %s\n", name, path);
         return 1;
     }
     
-    char* dirPath = getConversionFolderPath(path);
-    // printf("dir path: %s\n", dirPath);
-    char* sectionPath = malloc(strlen(dirPath) + 10);
-    strcpy(sectionPath, dirPath);
-    strcat(sectionPath, section);
-    strcat(sectionPath, ".txt");
-    printf("output file %s\n", sectionPath);
-    FILE* sectionFile = fopen(sectionPath, "w");
     
     while (fgets(line, 255, cart)) {
         int isHeader = isSectionHeader(line);
         if (isHeader) {
             break;
         }
-        fputs(line, sectionFile);
+        (*process)(output, line);
     }
-    fclose(sectionFile);
     fclose(cart);
     return 0;
+}
+
+int directTextProcess(FILE* file, const char* line) {
+    fputs(line, file);
+}
+
+int cartExportLua(const char* path) {
+
+    char* dirPath = getConversionFolderPath(path);
+    // printf("dir path: %s\n", dirPath);
+    char* luaPath = malloc(strlen(dirPath) + 10);
+    strcpy(luaPath, dirPath);
+    strcat(luaPath, "code.lua");
+    printf("output file %s\n", luaPath);
+    FILE* luaFile = fopen(luaPath, "w");
+
+    processCartSection(path, luaFile, "lua", directTextProcess);
+
+    fclose(luaFile);
+    free(luaPath);
+    // fputs("", luaFile);
+
+    return 0;
+}
+
+int cartSectionToFile(char* path, char* section) {
+    
 }
 
 int isSectionHeader(const char* line) {
@@ -126,4 +146,17 @@ int isSectionHeader(const char* line) {
     }
     return 1;
 
+}
+
+char* getPico8LocationGlobal() {
+    char* configPath = getConfigPath();
+    json_object* configRoot = openOrCreateJsonFile(configPath);
+
+    json_object* pico8LocationJson = json_object_object_get(configRoot, "pico8_location");
+    if (pico8LocationJson) {
+        char* pico8Location = malloc(json_object_get_string_len(pico8LocationJson)+1);
+        strcpy(pico8Location, json_object_get_string(pico8LocationJson));
+    } else {
+        return NULL;
+    }
 }

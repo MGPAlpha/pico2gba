@@ -14,5 +14,5 @@ int main() {
     printf("Checking if file %s is a cartridge\n", path3);
     printf("Result: %d\n", isPico8Cart(path3));
     createConversionFolder(path1);
-    cartSectionToFile(path1, "lua");
+    cartExportLua(path1);
 }
