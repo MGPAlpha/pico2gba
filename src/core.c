@@ -109,6 +109,16 @@ int directTextProcess(FILE* file, const char* line) {
     fputs(line, file);
 }
 
+int charArrayProcess(FILE* file, const char* line) {
+    char item[10];
+    fputs("    ", file);
+    for (char* i = line; *i != 0; i++) {
+        snprintf(item, 9, "%d, ", *i);
+        fputs(item, file);
+    }
+    fputs("\n", file);
+}
+
 int cartExportLua(const char* path) {
 
     char* dirPath = getConversionFolderPath(path);
@@ -122,8 +132,35 @@ int cartExportLua(const char* path) {
     processCartSection(path, luaFile, "lua", directTextProcess);
 
     fclose(luaFile);
+
+    strcat(luaPath, ".c");
+
+    FILE* cLuaFile = fopen(luaPath, "w");
+    fputs("#include \"code.lua.h\"\n", cLuaFile);
+    fputs("\n", cLuaFile);
+    fputs("char luaData[] = {\n", cLuaFile);
+
+    processCartSection(path, cLuaFile, "lua", charArrayProcess);
+
+    fputs("    0\n", cLuaFile);
+    fputs("};\n", cLuaFile);
+    fputs("\n", cLuaFile);
+    fputs("AbstractPicoData lua = {luaData, sizeof(luaData)};\n", cLuaFile);
+    fclose(cLuaFile);
+
+    strcpy(luaPath, dirPath);
+    strcat(luaPath, "code.lua.h");
+
+    FILE* hLuaFile = fopen(luaPath, "w");
+
+    fputs("#include \"picodata.h\"\n", hLuaFile);
+    fputs("\n", hLuaFile);
+    fputs("AbstractPicoData lua;\n", hLuaFile);
+
+    fclose(hLuaFile);
+
     free(luaPath);
-    // fputs("", luaFile);
+
 
     return 0;
 }
