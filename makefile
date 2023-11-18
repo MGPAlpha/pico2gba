@@ -6,13 +6,11 @@ RES_DIR := res
 
 BIN_RES_DIR := $(BIN_DIR)/res
 
-LIBLUA_A := $(RES_DIR)/liblua.a
-
 CORE_O := $(OBJ_DIR)/core.o
 CLI_O := $(OBJ_DIR)/cli.o
 
 LIB := 
-RES := $(LIBLUA_A)
+RES := 
 EXE := $(BIN_DIR)/pico2gba
 CLI := $(BIN_DIR)/pico2gbacli
 CORE := $(BIN_DIR)/libpico2gba.a
@@ -28,7 +26,7 @@ LDLIBS   := -lm -ljson-c
 
 all: $(CLI)
 
-$(CORE): $(CORE_O) $(LIB) $(LIBLUA_A) | $(BIN_DIR)
+$(CORE): $(CORE_O) $(LIB) | $(BIN_DIR)
 		$(AR) -rc $@ $?
 
 $(CLI): $(CLI_O) $(CORE) $(RES) $(LIB) | $(BIN_DIR)
@@ -41,13 +39,13 @@ $(BIN_DIR) $(OBJ_DIR) $(RES_DIR) $(BIN_RES_DIR):
 		mkdir -p $@
 		
 clean:
-		@$(RM) -rv $(BIN_DIR) $(OBJ_DIR) $(LIBLUA_A)
+		@$(RM) -rv $(BIN_DIR) $(OBJ_DIR)
 
 deep-clean: clean
 		@cd $(LIB_DIR)/luaARM && make clean
 
-$(LIBLUA_A) : | $(RES_DIR)
-		cd $(LIB_DIR)/luaARM && make liblua.a
-		cp $(LIB_DIR)/luaARM/liblua.a $(RES_DIR)/liblua.a
+# $(LIBLUA_A) : | $(RES_DIR)
+# 		cd $(LIB_DIR)/luaARM && make liblua.a
+# 		cp $(LIB_DIR)/luaARM/liblua.a $(RES_DIR)/liblua.a
 
 -include $(OBJ:.o=.d)

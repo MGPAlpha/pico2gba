@@ -165,6 +165,49 @@ int cartExportLua(const char* path) {
     return 0;
 }
 
+int gfxDataProcess(FILE* file, const char* line) {
+    char item[10];
+    fputs("    ", file);
+    for (char* i = line; *i != 0 && *i != '\n'; i+=2) {
+        snprintf(item, 9, "0x%c%c, ", *i, *(i+1));
+        fputs(item, file);
+    }
+    fputs("\n", file);
+}
+
+int cartExportLabel(const char* path) {
+    char* dirPath = getConversionFolderPath(path);
+
+    char* labelPath = malloc(strlen(dirPath) + 10);
+    strcpy(labelPath, dirPath);
+    strcat(labelPath, "label.c");
+
+    FILE* labelFile = fopen(labelPath, "w");
+
+
+    fputs("#include \"label.h\"\n", labelFile);
+    fputs("\n", labelFile);
+    fputs("char labelData[] = {\n", labelFile);
+
+    processCartSection(path, labelFile, "label", gfxDataProcess);
+
+    // fputs("    0\n", labelFile);
+    fputs("};\n", labelFile);
+    fputs("\n", labelFile);
+    fputs("AbstractPicoData label = {labelData, sizeof(labelData)};\n", labelFile);
+    fclose(labelFile);
+
+    labelPath[strlen(labelPath)-1] = 'h';
+    FILE* labelHeader = fopen(labelPath, "w");
+
+    fputs("#include \"picodata.h\"\n", labelHeader);
+    fputs("\n", labelHeader);
+    fputs("AbstractPicoData label;\n", labelHeader);
+
+    fclose(labelHeader);
+
+}
+
 int cartSectionToFile(char* path, char* section) {
     
 }
